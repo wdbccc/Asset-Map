@@ -1,0 +1,87 @@
+@import url("jquery-ui-1.8.21.custom.css");
+
+/* Map */
+div#assetMap div#map {
+    margin:0px;
+    width:100%;
+    height:400px;
+}
+
+/* get location */
+div#assetMap div#geoLocation {
+    float:right;
+	margin:5px;
+}
+
+ /* intro */
+div#assetMap .intro{
+	font-size: 120%;
+	font-style: italic;
+	padding: 10px 0px;
+	color: #252525;
+} 
+
+ /* categories */
+div#assetMap #categoryList{  
+    position:relative;
+} 
+div#assetMap #categoryList .categoryLabel{
+	font-size: 120%;
+	font-weight: bold;
+	padding: 2px 0px;
+	float: left;
+	padding-right: 10px;
+	color: #444444;
+} 
+div#assetMap #categoryList .buttonList{  
+	top:0px;
+	margin-left:120px;
+} 
+
+/* Alert */
+
+div#assetMap div#alerts {
+    color:#e81717;
+	margin:10px 0px;
+	font-size:115%;
+	font-weight:bold;
+}
+
+/* Results */
+div#assetMap #results{  
+    clear:both;
+	margin:10px 0px;
+	color: #666666;
+}
+
+div#assetMap #results{  
+    min-height:250px;
+} 
+
+div#assetMap #results h2{  
+    color:#584d1a;
+    font-size:20px !important;
+	font-style: italic;
+	padding:0px !important;
+    margin:20px 0px 0px 0px !important;
+} 
+div#assetMap #results h3{
+	color: #333333;
+	margin: 0px !important;
+	padding: 0px !important;
+	font-size: 14px;
+} 
+
+div#assetMap #results .resourceItem{
+	color: #666666;
+	margin: 12px 0px 0px 5px;
+	padding: 0;
+	font-size: 12px;
+	line-height:140%;
+} 
+div#assetMap #results .resourceColumns
+{
+	width: 50%;
+	float:left;	
+}
+
