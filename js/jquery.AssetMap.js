@@ -38,7 +38,11 @@ jQuery.support.cors = true;
         markerImage = null,
 		cartodb_layer = null;
 
-		//creating the user click marker -if already created reset the position
+        /**
+         * creating the user click marker -if already created reset the position
+         * 
+         * @param latLng - Google LatLng object
+         */
         var new_marker = function (latLng) {
             if (userMarker) {
                 userMarker.setPosition(latLng);
@@ -52,33 +56,98 @@ jQuery.support.cors = true;
             }
             getListData();
         }
+		
+        /**
+         * finds location on map based on user input
+         * 
+         * @param e - eventObject
+         */
+        var geoAddress = function(e) {
+            var address = document.getElementById('address').value;
+            var latlng = Geocoder.codeAddress(address, geoAddress_onPositionUpdate);
+            e.preventDefault();
+        };
 
-		//geolocaiton of user if able
+        /**
+         * on user entered address search complete set marker or show error
+         * 
+         * @param e - google latlng object
+         */
+        geoAddress_onPositionUpdate = function(latlng) {
+            if (latlng) {
+                var boundsLatLng = carto_map.getBounds();
+                if (boundsLatLng.contains(latlng)) {
+                    new_marker(latlng);
+                    $(".buttonContainer .searchError", mapContainer).hide();
+                    $(".geoToggleButton", mapContainer).click();
+                } else {
+                    $(".buttonContainer .searchError", mapContainer).html("Your location is outside of the visible area").show();
+                }
+            } else {
+                $(".buttonContainer .searchError", mapContainer).html('Geocode was not successful for the following reason: ' + status).show();
+            }
+        }
+
+        var Geocoder = {};
+        Geocoder.geocoder = new google.maps.Geocoder();
+
+        /**
+         * Geocode an address and return via async callback a google.maps.LatLng object 
+         * or null if the address couldn't be geocoded.
+         * 
+         * @param address - The address to geocode (e.g., Martinez, CA)
+         * @param callback - The callback function
+         */
+        Geocoder.codeAddress = function(address, callback) {
+            Geocoder.geocoder.geocode(
+                {
+                    'address': address
+                }, 
+                function(results, status) {
+                    var latlng = null;
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        latlng = results[0].geometry.location;
+                    } 
+                    callback(latlng, results, status);
+                }
+            );
+        };
+
+        /**
+         * geolocaiton of user if able
+         */
         var getUserLocation = function () {
             if (navigator.geolocation)
                 navigator.geolocation.getCurrentPosition(getUserLocation_onPositionUpdate);
             else
-                alertContainer.html("navigator.geolocation is not available");
+                $(".buttonContainer .searchError", mapContainer).html("navigator.geolocation is not available").show();
         }
-		
-		//geolocation of user set the position on the map.
-		//if user is out of the bounds then do not set and give message
+
+        /**
+         * geolocation of user set the position on the map.
+		 * if user is out of the bounds then do not set and give message
+         * 
+         * @param position - Google LatLng object
+         */
         var getUserLocation_onPositionUpdate = function (position) {
             var lat = position.coords.latitude;
             var lng = position.coords.longitude;
 
             var markerPoint = new google.maps.LatLng(lat, lng);
 
-
             var boundsLatLng = carto_map.getBounds();
             if (boundsLatLng.contains(markerPoint)) {
                 new_marker(markerPoint);
+                $(".buttonContainer .searchError", mapContainer).hide();
+                $(".geoToggleButton", mapContainer).click();
             } else {
-                alertContainer.html("Your location is outside of the visible area");
+                $(".buttonContainer .searchError", mapContainer).html("Your location is outside of the visible area").show();
             }
         }
 
-		//create the category button list
+        /**
+         * create the category button list
+         */
         var createButtonList = function () {
             //option buttons
 			var filterButtons = settings['filterButtons'];
@@ -99,8 +168,12 @@ jQuery.support.cors = true;
             });
         }
 
-		//load resource dataset based on buttons selected
-		//creates two columns with grouped items and attemts to keep columns equal
+        /**
+         * load resource dataset based on buttons selected
+		 * creates two columns with grouped items and attemts to keep columns equal
+         * 
+         * @param data - data from cartodb
+         */
         var loadResultsDataList = function (data) {
             var buttonSelectedList = $("input:checkbox:checked", buttonListContainer);
 
@@ -176,7 +249,9 @@ jQuery.support.cors = true;
 
         }
 
-		//request resources based on the user selected point
+        /**
+         * request resources based on the user selected point
+         */
         var getListData = function () {
             if (userMarker) {
                 resultContainer.html("Loading...");
@@ -216,7 +291,13 @@ jQuery.support.cors = true;
             }
         }
 
-		//attempt to track user click to resource
+        /**
+         * attempt to track user click to resource though google analytics
+         * 
+         * @param link - external link to send user
+         * @param category - analytics category
+         * @param action - analytics action
+         */
 		var recordOutboundLink = function(link, category, action) {
 			if(typeof _gat != 'undefined')
 			{
@@ -225,12 +306,16 @@ jQuery.support.cors = true;
 			window.open(link.href,"_blank");
 		}
 		
-		//clean the urls from database - remove http:// from view
+        /**
+         * clean the urls from database - remove http:// from view
+         */
 		var cleanURLView = function(url) {
 			return url.replace(/.*?:\/\//g, "");
 		}
 		
-		//clean the urls from database - add http:// for click
+        /**
+         * clean the urls from database - add http:// for click
+         */
 		var cleanURLLink = function(url) {
 			if(url.substring(0, 4) != "http"){
 				return "http://" + url;
@@ -239,72 +324,59 @@ jQuery.support.cors = true;
 			}
 		}
 		
-		
+        /**
+         * create the home button on the map
+         * 
+         * @param controlDiv - div control container on map
+         * @param map - google map
+         */
 		var HomeControl = function(controlDiv, map) {
-			// Set CSS styles for the DIV containing the control
-			// Setting padding to 5 px will offset the control
-			// from the edge of the map.
-			controlDiv.style.padding = '5px';
+			controlDiv.className = 'buttonContainer';
 			
-			// Set CSS for the control border.
-			var controlUI = document.createElement('div');
-			controlUI.style.backgroundColor = 'white';
-			controlUI.style.borderStyle = 'solid';
-			controlUI.style.borderWidth = '1px';
-			controlUI.style.cursor = 'pointer';
-			controlUI.style.textAlign = 'center';
-			controlUI.title = 'Click to set the map to Home';
-			controlDiv.appendChild(controlUI);
-			
-			// Set CSS for the control interior.
-			var controlText = document.createElement('div');
-			controlText.style.fontFamily = 'Arial,sans-serif';
-			controlText.style.fontSize = '12px';
-			controlText.style.paddingLeft = '4px';
-			controlText.style.paddingRight = '4px';
-			controlText.innerHTML = '<strong>Home<strong>';
-			controlUI.appendChild(controlText);
-			
+			var geoLocationButton = $('<div></div>').attr({ class: 'mapButton' }).html('<strong>Home<strong>').appendTo(controlDiv);
 			var homeLocation = new google.maps.LatLng(settings['mapCenterLat'], settings['mapCenterLng']);
 	
-			// Setup the click event listeners: simply set the map to Chicago.
-			google.maps.event.addDomListener(controlUI, 'click', function() {
-				map.setCenter(homeLocation)
+			// Setup the click event listeners
+			google.maps.event.addDomListener(geoLocationButton, 'click', function() {
+				map.setCenter(homeLocation);
 				map.setZoom(settings['mapZoom']);
 			});
 		}
-		
-		var geoLocationControl = function(controlDiv) {
-			// Set CSS styles for the DIV containing the control
-			// Setting padding to 5 px will offset the control
-			// from the edge of the map.
-			controlDiv.style.padding = '5px';
-			
-			// Set CSS for the control border.
-			var controlUI = document.createElement('div');
-			controlUI.style.backgroundColor = 'white';
-			controlUI.style.borderStyle = 'solid';
-			controlUI.style.borderWidth = '1px';
-			controlUI.style.cursor = 'pointer';
-			controlUI.style.textAlign = 'center';
-			controlUI.title = 'Click to locate your current position';
-			controlDiv.appendChild(controlUI);
-			
-			// Set CSS for the control interior.
-			var controlText = document.createElement('div');
-			controlText.style.fontFamily = 'Arial,sans-serif';
-			controlText.style.fontSize = '12px';
-			controlText.style.paddingLeft = '4px';
-			controlText.style.paddingRight = '4px';
-			controlText.innerHTML = '<strong>Your Location<strong>';
-			controlUI.appendChild(controlText);
+        
+        /**
+         * create the geocode button on the map and all sub controls
+         * 
+         * @param controlDiv - div control container on map
+         * @param map - google map
+         */
+        var GeocodeControl = function(controlDiv, map) {
+			controlDiv.className = 'buttonContainer';
 
-			// Setup the click event listeners: simply set the map to Chicago.
-			google.maps.event.addDomListener(controlUI, 'click', getUserLocation);
+			var geoLocationButton = $('<div></div>').attr({ class: 'mapButton geoToggleButton' }).html('<strong>Get my location<strong>').appendTo(controlDiv);
+			var geoControlUI = $('<div></div>').attr({ class: 'geoControls', style: 'display:none' }).appendTo(controlDiv);
+            
+            geoControlUI.append("<div class='searchError' style='display:none'></div>");
+            geoControlUI.append("<strong>Address Search:</strong>");
+            var geoTextbox = $('<input />').attr({ type: 'textbox', id: 'address' }).appendTo(geoControlUI);
+            var geoButton = $('<input />').attr({ type: 'button', value: 'Find' }).appendTo(geoControlUI);
+            geoTextbox.keydown(function(e){if (e.keyCode == 13){geoAddress();e.preventDefault();}});
+            geoButton.click(geoAddress);
+
+            //if geolocation is available add the button
+		    if (navigator.geolocation)
+		    {
+                geoControlUI.append("<strong>or</strong> ");
+                var geoMyButton = $('<a href="#">Find my current location</a>').appendTo(geoControlUI);
+                geoMyButton.click(getUserLocation);
+		    }
+
+            geoLocationButton.toggle(function() {
+              $(this).addClass("active").parent().children(".geoControls").slideDown();
+            }, function() {
+              $(this).removeClass("active").parent().children(".geoControls").slideUp();
+            });
 		}
-		
-		
-		
+				
 		//*************
 		//set up the control
 		//**************
@@ -371,22 +443,15 @@ jQuery.support.cors = true;
 			});
 		}
 		
-		 //if geolocation is available add the button
-		if (navigator.geolocation)
-		{
-			var getUserLocationDiv = document.createElement('div');
-			var getUserLocationControl = new geoLocationControl(getUserLocationDiv);
-			
-			getUserLocationDiv.index = 1;
-			carto_map.controls[google.maps.ControlPosition.TOP_RIGHT].push(getUserLocationDiv);
-		}
-		
+		//create map address geocode button
+		var geocodeControlDiv = document.createElement('div');
+		var geocodeControl = new GeocodeControl(geocodeControlDiv, carto_map);
+		carto_map.controls[google.maps.ControlPosition.TOP_RIGHT].push(geocodeControlDiv);
+        
 		//create map home button
 		var homeControlDiv = document.createElement('div');
 		var homeControl = new HomeControl(homeControlDiv, carto_map);
-		homeControlDiv.index = 1;
 		carto_map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
-		
 		
 		// Add the cartodb tiles
 		cartodb_imagemaptype = new google.maps.ImageMapType(cartodb_layer);

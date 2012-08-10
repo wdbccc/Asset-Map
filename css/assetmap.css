@@ -7,6 +7,79 @@ div#assetMap div#map {
     height:400px;
 }
 
+div#assetMap div#map .mapButton {
+    cursor: pointer;
+    background-color: -moz-linear-gradient(center top , #FEFEFE, #F3F3F3);
+    background-color: #FEFEFE;
+    border: 1px solid #A9BBDF;
+    border-radius: 2px;
+    padding: 0 6px;
+    line-height: 160%;
+    font-size: 12px;
+    font-family: Arial,sans-serif;
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.35);
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+div#assetMap div#map .mapButton:hover {
+    border: 1px solid #678AC7;
+}
+div#assetMap div#map .mapButton.active {
+    background-color: -moz-linear-gradient(center top , #6D8ACC, #7B98D9);
+    background-color: #6D8ACC;
+    color: #fff;
+    font-weight: bold;
+    border: 1px solid #678AC7;
+}
+
+div#assetMap div#map .buttonContainer
+{
+    padding:5px;
+}
+
+div#assetMap div#map .geoControls
+{
+    position:absolute;
+    right:5px;
+    top:30px;
+    cursor: pointer;
+    background-color: #FEFEFE;
+    border: 1px solid #A9BBDF;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-top-left-radius: 2px;
+    padding: 0 6px;
+    line-height: 160%;
+    font-size: 12px;
+    font-family: Arial,sans-serif;
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.25);
+    padding:5px;
+    width:200px;
+}
+div#assetMap div#map .geoControls input
+{
+    margin-bottom: 10px;
+    border-radius: 2px;
+    border: 1px solid #1A2744;
+    margin-right:5px;
+}
+div#assetMap div#map .geoControls a
+{
+    color: #4B70BC;
+}
+div#assetMap div#map .geoControls a:hover
+{
+    color: #324D85;
+}
+div#assetMap div#map .geoControls .searchError
+{
+    color: #800000;
+    font-weight:bold;
+}
+
 /* get location */
 div#assetMap div#geoLocation {
     float:right;
