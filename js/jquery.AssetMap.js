@@ -19,7 +19,7 @@ jQuery.support.cors = true;
             'mapCenterLng': -122.0017056045532,
             'mapZoom': 10,
             'testMode': false,
-			'filterButtons': [{ Title: "Advice", Type: "Free Consulting", Icon: "ui-icon-advice", DefaultSelected: true },
+			'filterButtons': [{ Title: "Advice", Type: "Advice", Icon: "ui-icon-advice", DefaultSelected: true },
 				{ Title: "Financing", Type: "Financing", Icon: "ui-icon-financing", DefaultSelected: true },
 				{ Title: "Networking", Type: "Networking", Icon: "ui-icon-networking", DefaultSelected: false },
 				{ Title: "Green Business", Type: "Green Business", Icon: "ui-icon-green", DefaultSelected: true },
@@ -27,7 +27,7 @@ jQuery.support.cors = true;
         }, options);
 
 		
-        var overlay, cartodb_imagemaptype, cartodb_imagemaptype2, userMarker
+        var overlay, cartodb_imagemaptypeBase, cartodb_imagemaptypeCorridor, userMarker
         alertContainer = null,
         mapContainer = null,
         resultContainer = null,
@@ -35,6 +35,7 @@ jQuery.support.cors = true;
 		geoLocationContainer = null,
         carto_map = null,
         resultsDataList = null,
+		resultsProfileData = null,
         markerImage = null,
 		cartodb_layer = null;
 
@@ -54,7 +55,11 @@ jQuery.support.cors = true;
                     icon: markerImage
                 });
             }
+			
+			
+    		$('.resourceColumns',resultContainer).empty();
             getListData();
+			getProfileData();
         }
 		
         /**
@@ -180,7 +185,8 @@ jQuery.support.cors = true;
             if (buttonSelectedList.length == 0)
                 buttonSelectedList = $("input:checkbox", buttonListContainer);
 
-            resultContainer.empty().hide();
+            resultContainer.hide();
+    		$('.resourceGroup',resultContainer).remove();
 
             if (resultsDataList && resultsDataList.rows && resultsDataList.rows.length > 0) {
 				var totalHeight = 0;
@@ -197,7 +203,15 @@ jQuery.support.cors = true;
                                 headingContainer.append("<h2>" + filtername + "</h2>");
                             }
 							groupHeight += 1;
-                            var resourceItem = $("<div class='resourceItem'><h3>" + val["name"] + "</h3><strong>website:</strong> <a href='" + cleanURLLink(val["url"]) + "'>" + cleanURLView(val["url"]) + "</a></br>short description about the resource here</div>").appendTo(headingContainer);
+							
+                            var itemString = "<div class='resourceItem'><h3>" + val["name"] + "</h3>";
+							if(val["url"]){itemString += "<strong>website:</strong> <a href='" + cleanURLLink(val["url"]) + "'>" + cleanURLView(val["url"]) + "</a></br>"};
+							if(val["phone"]){itemString += "<strong>phone:</strong> " + val["phone"] + "</br>"};
+							if(val["address"]){itemString += "<strong>address:</strong> " + val["address"] + "</br>"};
+							if(val["description"]){itemString += val["description"] + "</br>"};
+                            itemString += "</div>";
+							
+							var resourceItem = $(itemString).appendTo(headingContainer);
 							resourceItem.children("a").click(function(){recordOutboundLink(this,'Resource',val["type"] + " - " + val["name"]); return false;});
 						}
                     })
@@ -209,8 +223,8 @@ jQuery.support.cors = true;
 					}
                 })
 				
-    			var rowOne = $("<div class='resourceColumns'></div>").appendTo(resultContainer);
-    			var rowTwo = $("<div class='resourceColumns'></div>").appendTo(resultContainer);
+    			var rowOne = $('.resourceColumns.Column1',resultContainer);
+    			var rowTwo = $('.resourceColumns.Column2',resultContainer);
 				
 				var rowCount = 0;
 				var rowCountBottom = 0;
@@ -250,16 +264,37 @@ jQuery.support.cors = true;
         }
 
         /**
+         * load resource dataset based on buttons selected
+		 * creates two columns with grouped items and attemts to keep columns equal
+         * 
+         * @param data - data from cartodb
+         */
+        var loadResultsProfileData = function (data) {
+            if (resultsProfileData && resultsProfileData.rows && resultsProfileData.rows.length > 0) {
+				var val = resultsProfileData.rows[0];
+				var itemString = "<div class='resourceItem Profile'><h2>City/CDP: " + val["name"] + "</h2>";
+				if(val["chamber_url"]){itemString += "<a target='_blank' href='" + cleanURLLink(val["chamber_url"]) + "'>Chamber of Commerce</a></br>"};
+				if(val["dem_url"]){itemString += "<a target='_blank' href='" + cleanURLLink(val["dem_url"]) + "'>Demographic Profile</a></br>"};
+				if(val["econ_url"]){itemString += "<a target='_blank' href='" + cleanURLLink(val["econ_url"]) + "'>Economic Profile</a></br>"};
+				itemString += "</div>";
+				
+				var resourceItem = $(itemString).prependTo($('.resourceColumns.Column1',resultContainer));
+				resourceItem.children("a").click(function(){recordOutboundLink(this,'Profile',val["name"]); return false;});
+            }
+        }
+
+        /**
          * request resources based on the user selected point
          */
         var getListData = function () {
             if (userMarker) {
-                resultContainer.html("Loading...");
+                //resultContainer.html("Loading...");
 
                 var lat = userMarker.position.lat();
                 var lng = userMarker.position.lng();
-				var mapUrl = "http://cocobusinessresources.cartodb.com/api/v2/sql/?q=SELECT name, type, url, county FROM resources_041912_pro WHERE " +
-						"ST_Intersects( the_geom, ST_SetSRID(ST_Point(" + lng + "," + lat + "), 4326))";
+				var mapUrl = "http://wdbassetmap.cartodb.com/api/v2/sql/?q=SELECT asset.name, asset.url, asset.description, asset.address, asset.phone, asset.type FROM asset " +
+						"JOIN asset_place ON asset.cartodb_id = asset_place.asset_id JOIN place ON place.cartodb_id = asset_place.place_id WHERE " +
+						"ST_Intersects( place.the_geom, ST_SetSRID(ST_Point(" + lng + "," + lat + "), 4326))";
 				if ($.browser.msie && window.XDomainRequest) {
 					// Use Microsoft XDR
 					var xdr = new XDomainRequest();
@@ -279,6 +314,47 @@ jQuery.support.cors = true;
 						success: function (data) {
 							resultsDataList = data;
 							loadResultsDataList();
+						},
+						error: function (data) {
+							alert(data.statusText);
+						}
+					});
+				}
+            }
+            else {
+                alertContainer.html("Please select location on map");
+            }
+        }
+		
+		/**
+         * request location profile based on the user selected point
+         */
+        var getProfileData = function () {
+            if (userMarker) {
+                var lat = userMarker.position.lat();
+                var lng = userMarker.position.lng();
+				var mapUrl = "http://wdbassetmap.cartodb.com/api/v2/sql/?q=SELECT place_profiles.name, place_profiles.chamber_url, place_profiles.dem_url, place_profiles.econ_url, place_profiles.county FROM place_profiles " +
+						"JOIN place ON place.name = place_profiles.name WHERE " +
+						"ST_Intersects( place.the_geom, ST_SetSRID(ST_Point(" + lng + "," + lat + "), 4326))";
+				if ($.browser.msie && window.XDomainRequest) {
+					// Use Microsoft XDR
+					var xdr = new XDomainRequest();
+					xdr.open("get", mapUrl);
+					xdr.onload = function() {
+						// XDomainRequest doesn't provide responseXml, so if you need it:
+						json = 'json = '+xdr.responseText; // the string now looks like..  json = { ... };
+	  					eval(json); // json is now a regular JSON object
+						resultsDataList = json;
+						loadResultsDataList();
+					};
+					xdr.send();
+				} else {
+					$.ajax({
+						url: mapUrl,
+						dataType: 'json',
+						success: function (data) {
+							resultsProfileData = data;
+							loadResultsProfileData();
 						},
 						error: function (data) {
 							alert(data.statusText);
@@ -365,6 +441,7 @@ jQuery.support.cors = true;
             //if geolocation is available add the button
 		    if (navigator.geolocation)
 		    {
+           		geoControlUI.append("<br />");
                 geoControlUI.append("<strong>or</strong> ");
                 var geoMyButton = $('<a href="#">Find my current location</a>').appendTo(geoControlUI);
                 geoMyButton.click(getUserLocation);
@@ -383,7 +460,7 @@ jQuery.support.cors = true;
 		
 		this.append("<div id='map'></div><div id='geoLocation'></div>" +
 			"<div class='intro'>Select general location on map above to find business resources in your area. You can filter the resources by turning on and off the following categories.</div>" +
-			"<div id='data'><div id='alerts'></div><div id='categoryList'><div class='categoryLabel'>Categories:</div><div class='buttonList'></div></div><div id='results'>Click your location on the map to get started</div></div>");
+			"<div id='data'><div id='alerts'></div><div id='categoryList'><div class='categoryLabel'>Categories:</div><div class='buttonList'></div></div><div id='results'><div class='resourceColumns Column1'>Click your location on the map to get started</div><div class='resourceColumns Column2'></div></div></div>");
 		mapContainer = $("#map", this);
 		geoLocationContainer = $("#geoLocation", this);
 		alertContainer = $("#data #alerts", this);
@@ -394,17 +471,22 @@ jQuery.support.cors = true;
 		markerImage = new google.maps.MarkerImage('http://cartodb-gallery.appspot.com/static/icon.png');
 		
 		//map background layer
-		cartodb_layer = {
+		cartodb_layerBase = {
 			getTileUrl: function (coord, zoom) {
-				return "https://cocobusinessresources.cartodb.com/tiles/resources_041912_pro/" + zoom + "/" + coord.x + "/" + coord.y + ".png" +
-				"?sql=SELECT * FROM resources_041912_pro where objectid = 1";
+				var style = "%23place{ [loc_type='City']{polygon-fill:%231166FF; polygon-opacity:0.2; line-opacity:0.7; line-color:%23000000; line-width:0.2;} [loc_type='County']{polygon-fill:%23000000; polygon-opacity:0.0; line-opacity:.4; line-color:%23000000; line-width:0.8;} }";
+				var sql = "SELECT name, the_geom_webmercator, loc_type FROM place Where loc_type = 'City' OR loc_type = 'County'"
+				return "https://wdbassetmap.cartodb.com/tiles/place/" + zoom + "/" + coord.x + "/" + coord.y + ".png" +
+				"?sql=" + sql +"&style="+style;
 			},
 			tileSize: new google.maps.Size(256, 256)
 		};
 		
-		cartodb_layer2 = {
+		cartodb_layerCorridor = {
 			getTileUrl: function (coord, zoom) {
-				return "https://wdbassetmap.cartodb.com/tiles/citylimits_cc/" + zoom + "/" + coord.x + "/" + coord.y + ".png";
+				var style = "%23place{ [type='Corridor']{polygon-fill:%231166FF; polygon-opacity:0.2; line-opacity:0.7; line-color:%23000000; line-width:0.2;}}";
+				var sql = "SELECT name, the_geom_webmercator, type FROM place Where type = 'Corridor'"
+				return "https://wdbassetmap.cartodb.com/tiles/place/" + zoom + "/" + coord.x + "/" + coord.y + ".png" +
+				"?sql=" + sql +"&style="+style;
 			},
 			tileSize: new google.maps.Size(256, 256)
 		};
@@ -454,11 +536,11 @@ jQuery.support.cors = true;
 		carto_map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
 		
 		// Add the cartodb tiles
-		cartodb_imagemaptype = new google.maps.ImageMapType(cartodb_layer);
-		carto_map.overlayMapTypes.insertAt(0, cartodb_imagemaptype);
+		cartodb_imagemaptypeBase = new google.maps.ImageMapType(cartodb_layerBase);
+		carto_map.overlayMapTypes.insertAt(0, cartodb_imagemaptypeBase);
 		
-		cartodb_imagemaptype2 = new google.maps.ImageMapType(cartodb_layer2);
-		carto_map.overlayMapTypes.insertAt(1, cartodb_imagemaptype2);
+		//cartodb_imagemapCorridor = new google.maps.ImageMapType(cartodb_layerCorridor);
+		//carto_map.overlayMapTypes.insertAt(1, cartodb_imagemaptype2);
 	
 		createButtonList();
         return this;
