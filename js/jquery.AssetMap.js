@@ -19,10 +19,10 @@ jQuery.support.cors = true;
             'mapCenterLng': -122.0017056045532,
             'mapZoom': 10,
             'testMode': false,
-			'filterButtons': [{ Title: "Advice", Type: "Advice", Icon: "ui-icon-advice", DefaultSelected: true },
-				{ Title: "Financing", Type: "Financing", Icon: "ui-icon-financing", DefaultSelected: true },
+			'filterButtons': [{ Title: "Advice", Type: "Advice", Icon: "ui-icon-advice", DefaultSelected: false },
+				{ Title: "Financing", Type: "Financing", Icon: "ui-icon-financing", DefaultSelected: false },
 				{ Title: "Networking", Type: "Networking", Icon: "ui-icon-networking", DefaultSelected: false },
-				{ Title: "Green Business", Type: "Green Business", Icon: "ui-icon-green", DefaultSelected: true },
+				{ Title: "Green Business", Type: "Green Business", Icon: "ui-icon-green", DefaultSelected: false },
 				{ Title: "Workforce", Type: "Workforce", Icon: "ui-icon-workforce", DefaultSelected: false }]
         }, options);
 
@@ -68,7 +68,7 @@ jQuery.support.cors = true;
          * @param e - eventObject
          */
         var geoAddress = function(e) {
-            var address = document.getElementById('address').value;
+            var address = $('#address').val();
             var latlng = Geocoder.codeAddress(address, geoAddress_onPositionUpdate);
             e.preventDefault();
         };
@@ -413,29 +413,84 @@ jQuery.support.cors = true;
 			var homeLocation = new google.maps.LatLng(settings['mapCenterLat'], settings['mapCenterLng']);
 	
 			// Setup the click event listeners
-			google.maps.event.addDomListener(geoLocationButton, 'click', function() {
-				map.setCenter(homeLocation);
-				map.setZoom(settings['mapZoom']);
+			geoLocationButton.click(function() {
+				carto_map.setCenter(homeLocation);
+				carto_map.setZoom(settings['mapZoom']);
 			});
 		}
         
         /**
+         * create the layers button on the map and all sub controls
+         * 
+         * @param controlDiv - div control container on map
+         * @param map - google map
+         */
+        var LayersControl = function(controlDiv, map) {
+			controlDiv.className = 'buttonContainer';
+
+			var layersButton = $('<div></div>').attr({ class: 'mapButton layersToggleButton' }).html('<strong>Layers<strong>').appendTo(controlDiv);
+			var layersControlUI = $('<div></div>').attr({ class: 'layersControls subMenu', style: 'display:none' }).appendTo(controlDiv);
+            
+			var baseLayersCheckbox = $('<input />').attr({ type: 'checkbox', id: 'baseCheckbox', checked: 'checked' }).appendTo(layersControlUI);
+			$('<label for="baseCheckbox">City, CDP and County</label>').appendTo(layersControlUI);
+			baseLayersCheckbox.click(function (e) {
+				var thisCheck = $(this);
+				if (thisCheck.is (':checked')){
+					carto_map.overlayMapTypes.setAt(0, cartodb_imagemaptypeBase);
+				} else {
+					if (carto_map.overlayMapTypes.getLength() > 0){
+						carto_map.overlayMapTypes.setAt(0, null);
+					}
+				}
+			});
+			
+			$('<br />').appendTo(layersControlUI);
+			
+            var corridorLayersCheckbox = $('<input />').attr({ type: 'checkbox', id: 'corridorCheckbox' }).appendTo(layersControlUI);
+			$('<label for="corridorCheckbox">Corridor</label>').appendTo(layersControlUI);
+			corridorLayersCheckbox.click(function (e) {
+			
+				var thisCheck = $(this);
+				if (thisCheck.is (':checked')){
+					carto_map.overlayMapTypes.setAt(1, cartodb_imagemapCorridor);
+				} else {
+					if (carto_map.overlayMapTypes.getLength() > 1){
+						carto_map.overlayMapTypes.setAt(1, null);
+					}
+				}
+			});
+
+            layersButton.click(function() {
+				if(!$(this).hasClass("active")){
+					$(this).parent().parent().parent().find(".geoToggleButton.active").click();
+					$(this).addClass("active").parent().children(".layersControls").slideDown();
+				}else{
+					$(this).removeClass("active").parent().children(".layersControls").slideUp("300");
+				}
+			});
+		}
+		
+		/**
          * create the geocode button on the map and all sub controls
          * 
          * @param controlDiv - div control container on map
          * @param map - google map
          */
-        var GeocodeControl = function(controlDiv, map) {
+		var GeocodeControl = function(controlDiv, map) {
 			controlDiv.className = 'buttonContainer';
 
 			var geoLocationButton = $('<div></div>').attr({ class: 'mapButton geoToggleButton' }).html('<strong>Get my location<strong>').appendTo(controlDiv);
-			var geoControlUI = $('<div></div>').attr({ class: 'geoControls', style: 'display:none' }).appendTo(controlDiv);
+			var geoControlUI = $('<div></div>').attr({ class: 'geoControls subMenu', style: 'display:none' }).appendTo(controlDiv);
             
             geoControlUI.append("<div class='searchError' style='display:none'></div>");
             geoControlUI.append("<strong>Address Search:</strong>");
             var geoTextbox = $('<input />').attr({ type: 'textbox', id: 'address' }).appendTo(geoControlUI);
             var geoButton = $('<input />').attr({ type: 'button', value: 'Find' }).appendTo(geoControlUI);
-            geoTextbox.keydown(function(e){if (e.keyCode == 13){geoAddress();e.preventDefault();}});
+			geoTextbox.keydown(function (e) {
+				if (e.keyCode == 13) {
+					geoAddress(e);
+				}
+			});
             geoButton.click(geoAddress);
 
             //if geolocation is available add the button
@@ -447,13 +502,15 @@ jQuery.support.cors = true;
                 geoMyButton.click(getUserLocation);
 		    }
 
-            geoLocationButton.toggle(function() {
-              $(this).addClass("active").parent().children(".geoControls").slideDown();
-            }, function() {
-              $(this).removeClass("active").parent().children(".geoControls").slideUp();
-            });
+            geoLocationButton.click(function() {
+				if(!$(this).hasClass("active")){
+					$(this).parent().parent().parent().find(".layersToggleButton.active").click();
+					$(this).addClass("active").parent().children(".geoControls").slideDown();
+				}else{
+					$(this).removeClass("active").parent().children(".geoControls").slideUp("300");
+				}
+			});
 		}
-				
 		//*************
 		//set up the control
 		//**************
@@ -468,7 +525,11 @@ jQuery.support.cors = true;
 		buttonListContainer = $("#data #categoryList .buttonList", this);
 		
 		
-		markerImage = new google.maps.MarkerImage('http://cartodb-gallery.appspot.com/static/icon.png');
+		markerImage = new google.maps.MarkerImage('http://cartodb-gallery.appspot.com/static/icon.png',
+				new google.maps.Size(28, 27),	// size
+				new google.maps.Point(0,0),	// origin
+				new google.maps.Point(14, 14)	// anchor
+			);
 		
 		//map background layer
 		cartodb_layerBase = {
@@ -483,8 +544,8 @@ jQuery.support.cors = true;
 		
 		cartodb_layerCorridor = {
 			getTileUrl: function (coord, zoom) {
-				var style = "%23place{ [type='Corridor']{polygon-fill:%231166FF; polygon-opacity:0.2; line-opacity:0.7; line-color:%23000000; line-width:0.2;}}";
-				var sql = "SELECT name, the_geom_webmercator, type FROM place Where type = 'Corridor'"
+				var style = "%23place{ [loc_type='Corridor']{polygon-fill:%2397BC69; polygon-opacity:0.7; line-opacity:0.7; line-color:%23000000; line-width:0.2; text-name:'[name]'; text-face-name: 'DejaVu Sans Book'; text-fill:%23000; text-size:11; text-line-spacing:1; text-wrap-width:20; text-allow-overlap:true;}}";
+				var sql = "SELECT name, the_geom_webmercator, loc_type FROM place Where loc_type = 'Corridor'"
 				return "https://wdbassetmap.cartodb.com/tiles/place/" + zoom + "/" + coord.x + "/" + coord.y + ".png" +
 				"?sql=" + sql +"&style="+style;
 			},
@@ -525,6 +586,11 @@ jQuery.support.cors = true;
 			});
 		}
 		
+		//create layers button
+		var layersControlDiv = document.createElement('div');
+		var layersControl = new LayersControl(layersControlDiv, carto_map);
+		carto_map.controls[google.maps.ControlPosition.TOP_RIGHT].push(layersControlDiv);
+		
 		//create map address geocode button
 		var geocodeControlDiv = document.createElement('div');
 		var geocodeControl = new GeocodeControl(geocodeControlDiv, carto_map);
@@ -539,9 +605,10 @@ jQuery.support.cors = true;
 		cartodb_imagemaptypeBase = new google.maps.ImageMapType(cartodb_layerBase);
 		carto_map.overlayMapTypes.insertAt(0, cartodb_imagemaptypeBase);
 		
-		//cartodb_imagemapCorridor = new google.maps.ImageMapType(cartodb_layerCorridor);
-		//carto_map.overlayMapTypes.insertAt(1, cartodb_imagemaptype2);
-	
+		//create the corridor tiles
+		cartodb_imagemapCorridor = new google.maps.ImageMapType(cartodb_layerCorridor);
+		//carto_map.overlayMapTypes.insertAt(1, cartodb_imagemapCorridor);
+		
 		createButtonList();
         return this;
     };
