@@ -181,6 +181,8 @@ jQuery.support.cors = true;
          */
         var loadResultsDataList = function (data) {
             var buttonSelectedList = $("input:checkbox:checked", buttonListContainer);
+			var rowOne = $('.resourceColumns.Column1',resultContainer);
+			var rowTwo = $('.resourceColumns.Column2',resultContainer);
 
             if (buttonSelectedList.length == 0)
                 buttonSelectedList = $("input:checkbox", buttonListContainer);
@@ -223,9 +225,6 @@ jQuery.support.cors = true;
 					}
                 })
 				
-    			var rowOne = $('.resourceColumns.Column1',resultContainer);
-    			var rowTwo = $('.resourceColumns.Column2',resultContainer);
-				
 				var rowCount = 0;
 				var rowCountBottom = 0;
 				var rowCountTop = 0;
@@ -257,7 +256,8 @@ jQuery.support.cors = true;
                 resultContainer.slideDown("800");
             }
             else {
-                resultContainer.html("No data found");
+                rowOne.html("No data found");
+                rowTwo.html("");
                 resultContainer.slideDown("400");
             }
 
