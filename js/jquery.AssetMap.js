@@ -93,7 +93,7 @@ jQuery.support.cors = true;
           suffix = 'ca',
           latlng = null;
 
-      if (!address.indexOf(suffix, address.length - suffix.length) !== -1) {
+      if (address.indexOf(suffix, address.length - suffix.length) === -1) {
         address = address + ', ca';
       }
       var latlng = Geocoder.codeAddress(address, geoAddress_onPositionUpdate);
