@@ -1,4 +1,4 @@
-﻿function getScript(src) {
+function getScript(src) {
 	document.write('<' + 'script src="' + src + '"' +
 			   ' type="text/javascript"><' + '/script>');
 }
@@ -444,22 +444,38 @@ jQuery.support.cors = true;
 				}
 			});
 			
-			$('<br />').appendTo(layersControlUI);
+
+			 $('<br />').appendTo(layersControlUI);
 			
-            var corridorLayersCheckbox = $('<input />').attr({ type: 'checkbox', id: 'corridorCheckbox' }).appendTo(layersControlUI);
-			$('<label for="corridorCheckbox">Corridor</label>').appendTo(layersControlUI);
-			corridorLayersCheckbox.click(function (e) {
-			
+          var corridorLayersCheckbox = $('<input />').attr({ type: 'checkbox', id: 'corridorCheckbox' }).appendTo(layersControlUI);
+			 $('<label for="corridorCheckbox">Green Corridor</label>').appendTo(layersControlUI);
+			 corridorLayersCheckbox.click(function (e) {			   
 				var thisCheck = $(this);
 				if (thisCheck.is (':checked')){
-					carto_map.overlayMapTypes.setAt(1, cartodb_imagemapCorridor);
+				  carto_map.overlayMapTypes.setAt(1, cartodb_imagemapCorridor);
 				} else {
-					if (carto_map.overlayMapTypes.getLength() > 1){
-						carto_map.overlayMapTypes.setAt(1, null);
-					}
+				  if (carto_map.overlayMapTypes.getLength() > 1){
+					 carto_map.overlayMapTypes.setAt(1, null);
+				  }
 				}
-			});
+			 });
 
+          $('<br />').appendTo(layersControlUI);
+
+          // Special zones layer
+          var specialZoneLayersCheckbox = $('<input />').attr({ type: 'checkbox', id: 'specialZoneCheckbox' }).appendTo(layersControlUI);
+			 $('<label for="specialZoneCheckbox">Enterprise Zone</label>').appendTo(layersControlUI);
+			 specialZoneLayersCheckbox.click(function (e) {			   
+				var thisCheck = $(this);
+				if (thisCheck.is (':checked')){
+				  carto_map.overlayMapTypes.setAt(2, cartodb_imagemapSpecialZone);
+				} else {
+				  if (carto_map.overlayMapTypes.getLength() > 1){
+					 carto_map.overlayMapTypes.setAt(2, null);
+				  }
+				}
+			 });
+          
             layersButton.click(function() {
 				if(!$(this).hasClass("active")){
 					$(this).parent().parent().parent().find(".geoToggleButton.active").click();
@@ -551,6 +567,19 @@ jQuery.support.cors = true;
 			},
 			tileSize: new google.maps.Size(256, 256)
 		};
+
+      // loc_type = 'special zone' from place table:
+		cartodb_special_zone = {
+			getTileUrl: function (coord, zoom) {
+				//var style = "%23place{ [loc_type='Special Zone']{polygon-fill:%23purple; polygon-opacity:0.7; line-opacity:0.7; line-color:%23000000; line-width:0.2; text-name:'[name]'; text-face-name: 'DejaVu Sans Book'; text-fill:%23000; text-size:11; text-line-spacing:1; text-wrap-width:20; text-allow-overlap:true;}}";
+				var sql = "SELECT name, the_geom_webmercator, loc_type FROM place Where loc_type = 'Special Zone'"
+				return "https://wdbassetmap.cartodb.com/tiles/place/" + zoom + "/" + coord.x + "/" + coord.y + ".png" +
+				"?sql=" + sql; // +"&style="+style;
+			},
+			tileSize: new google.maps.Size(256, 256)
+		};
+
+      
 		
 		//map options
 		var cartodbMapOptions = {
@@ -608,7 +637,10 @@ jQuery.support.cors = true;
 		//create the corridor tiles
 		cartodb_imagemapCorridor = new google.maps.ImageMapType(cartodb_layerCorridor);
 		//carto_map.overlayMapTypes.insertAt(1, cartodb_imagemapCorridor);
-		
+
+		cartodb_imagemapSpecialZone = new google.maps.ImageMapType(cartodb_special_zone);
+		//carto_map.overlayMapTypes.insertAt(2, cartodb_imagemapSpecialZone);
+
 		createButtonList();
         return this;
     };
