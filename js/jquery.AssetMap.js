@@ -89,7 +89,7 @@ jQuery.support.cors = true;
      * @param e - eventObject
      */
     var geoAddress = function (e) {
-      var address = $('#address').val().toLowerCase(),
+      var address = $('#address').val().toLowerCase().trim(),
           suffix = 'ca',
           latlng = null;
 
