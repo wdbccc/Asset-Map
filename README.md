@@ -1,4 +1,4 @@
-# Update place_asset table
+# Update asset_place table
 
 ```sql
 INSERT INTO asset_place (place_id, asset_id) 
