@@ -26,7 +26,7 @@ jQuery.support.cors = true;
         DefaultSelected: false
       }, {
         Title: "Financing",
-        Type: "Financing",
+        Type: "Financial",
         Icon: "ui-icon-financing",
         DefaultSelected: false
       }, {
@@ -40,7 +40,7 @@ jQuery.support.cors = true;
         Icon: "ui-icon-green",
         DefaultSelected: false
       }, {
-        Title: "Workforce",
+        Title: "Employer Incentives",
         Type: "Workforce",
         Icon: "ui-icon-workforce",
         DefaultSelected: false
@@ -107,14 +107,9 @@ jQuery.support.cors = true;
      */
     geoAddress_onPositionUpdate = function (latlng) {
       if (latlng) {
-        var boundsLatLng = carto_map.getBounds();
-        if (boundsLatLng.contains(latlng)) {
-          new_marker(latlng);
-          $(".buttonContainer .searchError", mapContainer).hide();
-          $(".geoToggleButton", mapContainer).click();
-        } else {
-          $(".buttonContainer .searchError", mapContainer).html("Your location is outside of the visible area").show();
-        }
+		new_marker(latlng);
+		$(".buttonContainer .searchError", mapContainer).hide();
+		$(".geoToggleButton", mapContainer).click();
       } else {
         $(".buttonContainer .searchError", mapContainer).html('Geocode was not successful for the following reason: ' + status).show();
       }
@@ -154,24 +149,17 @@ jQuery.support.cors = true;
 
     /**
      * geolocation of user set the position on the map.
-     * if user is out of the bounds then do not set and give message
      * 
      * @param position - Google LatLng object
      */
     var getUserLocation_onPositionUpdate = function (position) {
-      var lat = position.coords.latitude;
-      var lng = position.coords.longitude;
-
-      var markerPoint = new google.maps.LatLng(lat, lng);
-
-      var boundsLatLng = carto_map.getBounds();
-      if (boundsLatLng.contains(markerPoint)) {
-        new_marker(markerPoint);
-        $(".buttonContainer .searchError", mapContainer).hide();
-        $(".geoToggleButton", mapContainer).click();
-      } else {
-        $(".buttonContainer .searchError", mapContainer).html("Your location is outside of the visible area").show();
-      }
+		var lat = position.coords.latitude;
+		var lng = position.coords.longitude;
+		
+		var markerPoint = new google.maps.LatLng(lat, lng);
+		new_marker(markerPoint);
+		$(".buttonContainer .searchError", mapContainer).hide();
+		$(".geoToggleButton", mapContainer).click();
     }
 
     /**
@@ -378,8 +366,8 @@ jQuery.support.cors = true;
             // XDomainRequest doesn't provide responseXml, so if you need it:
             json = 'json = ' + xdr.responseText; // the string now looks like..  json = { ... };
             eval(json); // json is now a regular JSON object
-            resultsDataList = json;
-            loadResultsDataList();
+            resultsProfileData = json;
+            loadResultsProfileData();
           };
           xdr.send();
         } else {
@@ -400,190 +388,6 @@ jQuery.support.cors = true;
       }
     }
 
-    /**
-     * attempt to track user click to resource though google analytics
-     * 
-     * @param link - external link to send user
-     * @param category - analytics category
-     * @param action - analytics action
-     */
-    var recordOutboundLink = function (link, category, action) {
-      if (typeof _gat != 'undefined') {
-        _gat._getTrackerByName()._trackEvent(category, action);
-      }
-      window.open(link.href, "_blank");
-    }
-
-    /**
-     * clean the urls from database - remove http:// from view
-     */
-    var cleanURLView = function (url) {
-      return url.replace(/.*?:\/\//g, "");
-    }
-
-    /**
-     * clean the urls from database - add http:// for click
-     */
-    var cleanURLLink = function (url) {
-      if (url.substring(0, 4) != "http") {
-        return "http://" + url;
-      } else {
-        return url;
-      }
-    }
-
-    /**
-     * create the home button on the map
-     * 
-     * @param controlDiv - div control container on map
-     * @param map - google map
-     */
-    var HomeControl = function (controlDiv, map) {
-      controlDiv.className = 'buttonContainer';
-
-      var geoLocationButton = $('<div></div>').attr({
-        class: 'mapButton'
-      }).html('<strong>Home<strong>').appendTo(controlDiv);
-      var homeLocation = new google.maps.LatLng(settings['mapCenterLat'], settings['mapCenterLng']);
-
-      // Setup the click event listeners
-      geoLocationButton.click(function () {
-        carto_map.setCenter(homeLocation);
-        carto_map.setZoom(settings['mapZoom']);
-      });
-    }
-
-    /**
-     * create the layers button on the map and all sub controls
-     * 
-     * @param controlDiv - div control container on map
-     * @param map - google map
-     */
-    var LayersControl = function (controlDiv, map) {
-      controlDiv.className = 'buttonContainer';
-
-      var layersButton = $('<div></div>').attr({
-        class: 'mapButton layersToggleButton'
-      }).html('<strong>Layers<strong>').appendTo(controlDiv);
-      var layersControlUI = $('<div></div>').attr({
-        class: 'layersControls subMenu',
-        style: 'display:none'
-      }).appendTo(controlDiv);
-
-      var baseLayersCheckbox = $('<input />').attr({
-        type: 'checkbox',
-        id: 'baseCheckbox',
-        checked: 'checked'
-      }).appendTo(layersControlUI);
-      $('<label for="baseCheckbox">City, CDP and County</label>').appendTo(layersControlUI);
-      baseLayersCheckbox.click(function (e) {
-        var thisCheck = $(this);
-        if (thisCheck.is(':checked')) {
-          carto_map.overlayMapTypes.setAt(0, cartodb_imagemaptypeBase);
-        } else {
-          if (carto_map.overlayMapTypes.getLength() > 0) {
-            carto_map.overlayMapTypes.setAt(0, null);
-          }
-        }
-      });
-
-      $('<br />').appendTo(layersControlUI);
-
-      var corridorLayersCheckbox = $('<input />').attr({
-        type: 'checkbox',
-        id: 'corridorCheckbox'
-      }).appendTo(layersControlUI);
-      $('<label for="corridorCheckbox">Corridor</label>').appendTo(layersControlUI);
-      corridorLayersCheckbox.click(function (e) {
-
-        var thisCheck = $(this);
-        if (thisCheck.is(':checked')) {
-          carto_map.overlayMapTypes.setAt(1, cartodb_imagemapCorridor);
-        } else {
-          if (carto_map.overlayMapTypes.getLength() > 1) {
-            carto_map.overlayMapTypes.setAt(1, null);
-          }
-        }
-      });
-
-      layersButton.click(function () {
-        if (!$(this).hasClass("active")) {
-          $(this).parent().parent().parent().find(".geoToggleButton.active").click();
-          $(this).addClass("active").parent().children(".layersControls").slideDown();
-        } else {
-          $(this).removeClass("active").parent().children(".layersControls").slideUp("300");
-        }
-      });
-    }
-
-    /**
-     * create the geocode button on the map and all sub controls
-     * 
-     * @param controlDiv - div control container on map
-     * @param map - google map
-     */
-    var GeocodeControl = function (controlDiv, map) {
-      controlDiv.className = 'buttonContainer';
-
-      var geoLocationButton = $('<div></div>').attr({
-        class: 'mapButton geoToggleButton'
-      }).html('<strong>Get my location<strong>').appendTo(controlDiv);
-      var geoControlUI = $('<div></div>').attr({
-        class: 'geoControls subMenu',
-        style: 'display:none'
-      }).appendTo(controlDiv);
-
-      geoControlUI.append("<div class='searchError' style='display:none'></div>");
-      geoControlUI.append("<strong>Address Search:</strong>");
-      var geoTextbox = $('<input />').attr({
-        type: 'textbox',
-        id: 'address'
-      }).appendTo(geoControlUI);
-      var geoButton = $('<input />').attr({
-        type: 'button',
-        value: 'Find'
-      }).appendTo(geoControlUI);
-      geoTextbox.keydown(function (e) {
-        if (e.keyCode == 13) {
-          geoAddress(e);
-        }
-      });
-      geoButton.click(geoAddress);
-
-      //if geolocation is available add the button
-      if (navigator.geolocation) {
-        geoControlUI.append("<br />");
-        geoControlUI.append("<strong>or</strong> ");
-        var geoMyButton = $('<a href="#">Find my current location</a>').appendTo(geoControlUI);
-        geoMyButton.click(getUserLocation);
-      }
-
-      geoLocationButton.click(function () {
-        if (!$(this).hasClass("active")) {
-          $(this).parent().parent().parent().find(".layersToggleButton.active").click();
-          $(this).addClass("active").parent().children(".geoControls").slideDown();
-        } else {
-          $(this).removeClass("active").parent().children(".geoControls").slideUp("300");
-        }
-      });
-    }
-    //*************
-    //set up the control
-    //**************
-
-    this.append("<div id='map'></div><div id='geoLocation'></div>" + "<div class='intro'>Select general location on map above to find business resources in your area. You can filter the resources by turning on and off the following categories.</div>" + "<div id='data'><div id='alerts'></div><div id='categoryList'><div class='categoryLabel'>Categories:</div><div class='buttonList'></div></div><div id='results'><div class='resourceColumns Column1'>Click your location on the map to get started</div><div class='resourceColumns Column2'></div></div></div>");
-    mapContainer = $("#map", this);
-    geoLocationContainer = $("#geoLocation", this);
-    alertContainer = $("#data #alerts", this);
-    resultContainer = $("#data #results", this);
-    buttonListContainer = $("#data #categoryList .buttonList", this);
-
-
-    markerImage = new google.maps.MarkerImage('http://cartodb-gallery.appspot.com/static/icon.png',
-                                              new google.maps.Size(28, 27), // size
-                                              new google.maps.Point(0, 0), // origin
-                                              new google.maps.Point(14, 14) // anchor
-                                             );
         /**
          * attempt to track user click to resource though google analytics
          * 
@@ -626,7 +430,7 @@ jQuery.support.cors = true;
 		var HomeControl = function(controlDiv, map) {
 			controlDiv.className = 'buttonContainer';
 			
-			var geoLocationButton = $('<div></div>').attr({ class: 'mapButton' }).html('<strong>Home<strong>').appendTo(controlDiv);
+			var geoLocationButton = $('<div class="mapButton"><strong>Home<strong></div>').appendTo(controlDiv);
 			var homeLocation = new google.maps.LatLng(settings['mapCenterLat'], settings['mapCenterLng']);
 	
 			// Setup the click event listeners
@@ -645,10 +449,10 @@ jQuery.support.cors = true;
         var LayersControl = function(controlDiv, map) {
 			controlDiv.className = 'buttonContainer';
 
-			var layersButton = $('<div></div>').attr({ class: 'mapButton layersToggleButton' }).html('<strong>Layers<strong>').appendTo(controlDiv);
-			var layersControlUI = $('<div></div>').attr({ class: 'layersControls subMenu', style: 'display:none' }).appendTo(controlDiv);
+			var layersButton = $('<div class="mapButton layersToggleButton"><strong>Layers<strong></div>').appendTo(controlDiv);
+			var layersControlUI = $('<div class="layersControls subMenu"></div>').attr({ style: 'display:none' }).appendTo(controlDiv);
             
-			var baseLayersCheckbox = $('<input />').attr({ type: 'checkbox', id: 'baseCheckbox', checked: 'checked' }).appendTo(layersControlUI);
+			var baseLayersCheckbox = $('<input />').attr({ type: 'checkbox', id: 'baseCheckbox' }).appendTo(layersControlUI);
 			$('<label for="baseCheckbox">City, CDP and County</label>').appendTo(layersControlUI);
 			baseLayersCheckbox.click(function (e) {
 				var thisCheck = $(this);
@@ -712,8 +516,8 @@ jQuery.support.cors = true;
 		var GeocodeControl = function(controlDiv, map) {
 			controlDiv.className = 'buttonContainer';
 
-			var geoLocationButton = $('<div></div>').attr({ class: 'mapButton geoToggleButton' }).html('<strong>Get my location<strong>').appendTo(controlDiv);
-			var geoControlUI = $('<div></div>').attr({ class: 'geoControls subMenu', style: 'display:none' }).appendTo(controlDiv);
+			var geoLocationButton = $('<div class="mapButton geoToggleButton"><strong>Get my location<strong></div>').appendTo(controlDiv);
+			var geoControlUI = $('<div class="geoControls subMenu"></div>').attr({ style: 'display:none' }).appendTo(controlDiv);
             
             geoControlUI.append("<div class='searchError' style='display:none'></div>");
             geoControlUI.append("<strong>Address Search:</strong>");
@@ -777,8 +581,8 @@ jQuery.support.cors = true;
 		
 		cartodb_layerCorridor = {
 			getTileUrl: function (coord, zoom) {
-				var style = "%23place{ [loc_type='Corridor']{polygon-fill:%2397BC69; polygon-opacity:0.7; line-opacity:0.7; line-color:%23000000; line-width:0.2; text-name:'[name]'; text-face-name: 'DejaVu Sans Book'; text-fill:%23000; text-size:11; text-line-spacing:1; text-wrap-width:20; text-allow-overlap:true;}}";
-				var sql = "SELECT name, the_geom_webmercator, loc_type FROM place Where loc_type = 'Corridor'"
+				var style = "%23place{ [loc_type='Green Corridor']{polygon-fill:%2397BC69; polygon-opacity:0.7; line-opacity:0.7; line-color:%23000000; line-width:0.2; text-name:'[name]'; text-face-name: 'DejaVu Sans Book'; text-fill:%23000; text-size:11; text-line-spacing:1; text-wrap-width:20; text-allow-overlap:true;}}";
+				var sql = "SELECT name, the_geom_webmercator, loc_type FROM place Where loc_type = 'Green Corridor'"
 				return "https://wdbassetmap.cartodb.com/tiles/place/" + zoom + "/" + coord.x + "/" + coord.y + ".png" +
 				"?sql=" + sql +"&style="+style;
 			},
@@ -849,7 +653,7 @@ jQuery.support.cors = true;
 		
 		// Add the cartodb tiles
 		cartodb_imagemaptypeBase = new google.maps.ImageMapType(cartodb_layerBase);
-		carto_map.overlayMapTypes.insertAt(0, cartodb_imagemaptypeBase);
+		//carto_map.overlayMapTypes.insertAt(0, cartodb_imagemaptypeBase);
 		
 		//create the corridor tiles
 		cartodb_imagemapCorridor = new google.maps.ImageMapType(cartodb_layerCorridor);
