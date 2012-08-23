@@ -19,6 +19,7 @@ jQuery.support.cors = true;
       'mapCenterLng': -122.0017056045532,
       'mapZoom': 10,
       'testMode': false,
+	  'textIntro': 'Click on the map to view available business resources for a location. You can filter resources by toggling on/off the following categories:',
       'filterButtons': [{
         Title: "Advice",
         Type: "Advice",
@@ -58,7 +59,11 @@ jQuery.support.cors = true;
     resultsDataList = null,
     resultsProfileData = null,
     markerImage = null,
-    cartodb_layer = null;
+    cartodb_layer = null
+	descriptionShowChar = 100,
+    descriptionEllipsesText = "...",
+    descriptionMoreText = "more",
+    descriptionLessText = "less";
 
     /**
      * creating the user click marker -if already created reset the position
@@ -225,10 +230,18 @@ jQuery.support.cors = true;
                 itemString += "<strong>phone:</strong> " + val["phone"] + "</br>"
               };
               if (val["address"]) {
-                itemString += "<strong>address:</strong> " + val["address"] + "</br>"
+                itemString += "<strong>address:</strong> " + val["address"] + " | <a target='_blank' href='https://maps.google.com/maps?q=" +  encodeURIComponent(val["address"]) + "'>map it</a></br>"
               };
               if (val["description"]) {
-                itemString += val["description"] + "</br>"
+                itemString += "<div class='description'>";
+				if(val["description"].length > descriptionShowChar ) {
+					var c = val["description"].substr(0, descriptionShowChar );
+					var h = val["description"].substr(descriptionShowChar -1, val["description"].length - descriptionShowChar );
+					itemString += c + '<span class="moreellipses">' + descriptionEllipsesText + '&nbsp;</span><span class="morecontent"><span style="display:none;">' + h + '</span>&nbsp;&nbsp;<a href="#" class="morelink">' + descriptionMoreText  + '</a></span>';
+				}else{
+					itemString += val["description"];
+				}
+				itemString += "</div>";
               };
               itemString += "</div>";
 
@@ -237,6 +250,22 @@ jQuery.support.cors = true;
                 recordOutboundLink(this, 'Resource', val["type"] + " - " + val["name"]);
                 return false;
               });
+			  
+			  if(val["description"] && val["description"].length > descriptionShowChar ) {
+				$(".morelink", resourceItem).click(function(){
+					if($(this).hasClass("less")) {
+						$(this).removeClass("less");
+						$(this).html(descriptionMoreText);
+					} else {
+						$(this).addClass("less");
+						$(this).html(descriptionLessText);
+					}
+					$(this).parent().prev().toggle();
+					$(this).prev().toggle();
+					return false;
+				});
+			  }
+			  
             }
           })
 
@@ -300,6 +329,9 @@ jQuery.support.cors = true;
         if (val["econ_url"]) {
           itemString += "<a target='_blank' href='" + cleanURLLink(val["econ_url"]) + "'>Economic Profile</a></br>"
         };
+        if (val["econdev_url"]) {
+          itemString += "<a target='_blank' href='" + cleanURLLink(val["econdev_url"]) + "'>Economic Development</a></br>"
+        };
         itemString += "</div>";
 
         var resourceItem = $(itemString).prependTo($('.resourceColumns.Column1', resultContainer));
@@ -357,7 +389,7 @@ jQuery.support.cors = true;
       if (userMarker) {
         var lat = userMarker.position.lat();
         var lng = userMarker.position.lng();
-        var mapUrl = "http://wdbassetmap.cartodb.com/api/v2/sql/?q=SELECT place_profiles.name, place_profiles.chamber_url, place_profiles.dem_url, place_profiles.econ_url, place_profiles.county FROM place_profiles " + "JOIN place ON place.name = place_profiles.name WHERE " + "ST_Intersects( place.the_geom, ST_SetSRID(ST_Point(" + lng + "," + lat + "), 4326))";
+        var mapUrl = "http://wdbassetmap.cartodb.com/api/v2/sql/?q=SELECT place_profiles.name, place_profiles.chamber_url, place_profiles.dem_url, place_profiles.econ_url, place_profiles.econdev_url, place_profiles.county FROM place_profiles " + "JOIN place ON place.name = place_profiles.name WHERE " + "ST_Intersects( place.the_geom, ST_SetSRID(ST_Point(" + lng + "," + lat + "), 4326))";
         if ($.browser.msie && window.XDomainRequest) {
           // Use Microsoft XDR
           var xdr = new XDomainRequest();
@@ -553,7 +585,7 @@ jQuery.support.cors = true;
 		//**************
 		
 		this.append("<div id='map'></div><div id='geoLocation'></div>" +
-			"<div class='intro'>Select general location on map above to find business resources in your area. You can filter the resources by turning on and off the following categories.</div>" +
+			"<div class='intro'>" + settings['textIntro'] + "</div>" +
 			"<div id='data'><div id='alerts'></div><div id='categoryList'><div class='categoryLabel'>Categories:</div><div class='buttonList'></div></div><div id='results'><div class='resourceColumns Column1'>Click your location on the map to get started</div><div class='resourceColumns Column2'></div></div></div>");
 		mapContainer = $("#map", this);
 		geoLocationContainer = $("#geoLocation", this);
