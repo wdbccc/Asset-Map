@@ -102,10 +102,10 @@ div#assetMap div#map .layersControls
 
  /* intro */
 div#assetMap .intro{
-	font-size: 120%;
-	font-style: italic;
+	font-size: 90%;
+	font-style: normal;
 	padding: 10px 0px;
-	color: #252525;
+	color: gray;
 } 
 
  /* categories */
