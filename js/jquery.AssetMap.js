@@ -319,7 +319,7 @@ jQuery.support.cors = true;
     var loadResultsProfileData = function (data) {
       if (resultsProfileData && resultsProfileData.rows && resultsProfileData.rows.length > 0) {
         var val = resultsProfileData.rows[0];
-        var itemString = "<div class='resourceItem Profile'><h2>City/CDP: " + val["name"] + "</h2>";
+        var itemString = "<div class='resourceItem Profile'><h2>Community: " + val["name"] + "</h2>";
         if (val["chamber_url"]) {
           itemString += "<a target='_blank' href='" + cleanURLLink(val["chamber_url"]) + "'>Chamber of Commerce</a></br>"
         };
@@ -351,7 +351,7 @@ jQuery.support.cors = true;
 
         var lat = userMarker.position.lat();
         var lng = userMarker.position.lng();
-        var mapUrl = "http://wdbassetmap.cartodb.com/api/v2/sql/?q=SELECT asset.name, asset.url, asset.description, asset.address, asset.phone, asset.type FROM asset " + "JOIN asset_place ON asset.cartodb_id = asset_place.asset_id JOIN place ON place.cartodb_id = asset_place.place_id WHERE " + "ST_Intersects( place.the_geom, ST_SetSRID(ST_Point(" + lng + "," + lat + "), 4326))";
+        var mapUrl = "http://wdbassetmap.cartodb.com/api/v2/sql/?q=SELECT asset.name, asset.url, asset.description, asset.address, asset.phone, asset.type FROM asset " + "JOIN asset_place ON asset.cartodb_id = asset_place.asset_id JOIN place ON place.cartodb_id = asset_place.place_id WHERE " + "ST_Intersects( place.the_geom, ST_SetSRID(ST_Point(" + lng + "," + lat + "), 4326)) order by asset.name asc";
         if ($.browser.msie && window.XDomainRequest) {
           // Use Microsoft XDR
           var xdr = new XDomainRequest();
@@ -485,7 +485,7 @@ jQuery.support.cors = true;
 			var layersControlUI = $('<div class="layersControls subMenu"></div>').attr({ style: 'display:none' }).appendTo(controlDiv);
             
 			var baseLayersCheckbox = $('<input />').attr({ type: 'checkbox', id: 'baseCheckbox' }).appendTo(layersControlUI);
-			$('<label for="baseCheckbox">City, CDP and County</label>').appendTo(layersControlUI);
+			$('<label for="baseCheckbox">Community</label>').appendTo(layersControlUI);
 			baseLayersCheckbox.click(function (e) {
 				var thisCheck = $(this);
 				if (thisCheck.is (':checked')){
@@ -548,7 +548,7 @@ jQuery.support.cors = true;
 		var GeocodeControl = function(controlDiv, map) {
 			controlDiv.className = 'buttonContainer';
 
-			var geoLocationButton = $('<div class="mapButton geoToggleButton"><strong>Get my location<strong></div>').appendTo(controlDiv);
+			var geoLocationButton = $('<div class="mapButton geoToggleButton"><strong>Address Search<strong></div>').appendTo(controlDiv);
 			var geoControlUI = $('<div class="geoControls subMenu"></div>').attr({ style: 'display:none' }).appendTo(controlDiv);
             
             geoControlUI.append("<div class='searchError' style='display:none'></div>");
@@ -585,7 +585,7 @@ jQuery.support.cors = true;
 		//**************
 		
 		this.append("<div id='map'></div><div id='geoLocation'></div>" +
-			"<div class='intro'>Click the map to view available business resources for a location. Toggle resources by the following categories.</div>" +
+			"<div class='intro'>Click the location of your business on the map to view a custom list of resources available for that location. Resources can be toggled by the following categories:</div>" +
 			"<div id='data'><div id='alerts'></div><div id='categoryList'><div class='categoryLabel'>Categories:</div><div class='buttonList'></div></div><div id='results'><div class='resourceColumns Column1'>Click your location on the map to get started</div><div class='resourceColumns Column2'></div></div></div>");
 		mapContainer = $("#map", this);
 		geoLocationContainer = $("#geoLocation", this);
@@ -606,7 +606,7 @@ jQuery.support.cors = true;
 				var style = "%23place{ [loc_type='City']{polygon-fill:%231166FF; polygon-opacity:0.2; line-opacity:0.7; line-color:%23000000; line-width:0.2;} [loc_type='County']{polygon-fill:%23000000; polygon-opacity:0.0; line-opacity:.4; line-color:%23000000; line-width:0.8;} }";
 				var sql = "SELECT name, the_geom_webmercator, loc_type FROM place Where loc_type = 'City' OR loc_type = 'County'"
 				return "https://wdbassetmap.cartodb.com/tiles/place/" + zoom + "/" + coord.x + "/" + coord.y + ".png" +
-				"?sql=" + sql +"&style="+style;
+				"?sql=" + sql;
 			},
 			tileSize: new google.maps.Size(256, 256)
 		};
@@ -642,7 +642,7 @@ jQuery.support.cors = true;
 			zoomControl: true,
 				zoomControlOptions: {
 				style: google.maps.ZoomControlStyle.SMALL,
-				position: google.maps.ControlPosition.TOP_RIGHT
+				position: google.maps.ControlPosition.TOP_LEFT
 			},
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		}
