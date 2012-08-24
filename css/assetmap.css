@@ -173,14 +173,3 @@ div#assetMap #results .resourceColumns
 	float:left;	
 }
 
-div#assetMap .mapCredit
-{
-	background-image: url('images/WDB-logo.png');
-	background-repeat: no-repeat;
-	background-position: left top;
-	margin: 5px auto 10px auto;
-	min-width: 400px;
-	width: 70%;
-	padding-left: 130px;
-	color: #A8A8A8;
-}
