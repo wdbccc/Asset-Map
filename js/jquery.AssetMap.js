@@ -21,27 +21,27 @@ jQuery.support.cors = true;
       'testMode': false,
       'filterButtons': [{
         Title: "Advice",
-        Type: "Advice",
+        Type: "advice",
         Icon: "ui-icon-advice",
         DefaultSelected: false
       }, {
         Title: "Financing",
-        Type: "Financial",
+        Type: "financial",
         Icon: "ui-icon-financing",
         DefaultSelected: false
       }, {
         Title: "Networking",
-        Type: "Networking",
+        Type: "networking",
         Icon: "ui-icon-networking",
         DefaultSelected: false
       }, {
         Title: "Green Business",
-        Type: "Green Business",
+        Type: "green_business",
         Icon: "ui-icon-green",
         DefaultSelected: false
       }, {
         Title: "Employer Incentives",
-        Type: "Workforce",
+        Type: "employer_incentives",
         Icon: "ui-icon-workforce",
         DefaultSelected: false
       }]
@@ -216,7 +216,7 @@ jQuery.support.cors = true;
           var headingContainer = null;
           var groupHeight = 1;
           $.each(resultsDataList.rows, function (key, val) {
-            if (filtertype == val["type"]) {
+            if (val["type_" + filtertype]) {
               if (!headingContainer) {
                 headingContainer = $("<div class='resourceGroup'></div>");
                 headingContainer.append("<h2>" + filtername + "</h2>");
@@ -353,7 +353,7 @@ jQuery.support.cors = true;
 
         var lat = userMarker.position.lat();
         var lng = userMarker.position.lng();
-        var mapUrl = "http://wdbassetmap.cartodb.com/api/v2/sql/?q=SELECT asset.name, asset.url, asset.description, asset.address, asset.phone, asset.type FROM asset " + "JOIN asset_place ON asset.cartodb_id = asset_place.asset_id JOIN place ON place.cartodb_id = asset_place.place_id WHERE " + "ST_Intersects( place.the_geom, ST_SetSRID(ST_Point(" + lng + "," + lat + "), 4326)) order by asset.name asc";
+        var mapUrl = "http://wdbassetmap.cartodb.com/api/v2/sql/?q=SELECT asset.* FROM asset " + "JOIN asset_place ON asset.cartodb_id = asset_place.asset_id JOIN place ON place.cartodb_id = asset_place.place_id WHERE " + "ST_Intersects( place.the_geom, ST_SetSRID(ST_Point(" + lng + "," + lat + "), 4326)) order by asset.name asc";
         if ($.browser.msie && window.XDomainRequest) {
           // Use Microsoft XDR
           var xdr = new XDomainRequest();
@@ -589,7 +589,7 @@ jQuery.support.cors = true;
 		this.append("<div id='map'></div><div id='geoLocation'></div>" +
 			"<div class='intro'>" + mapIntro + "</div>" +
 			"<div id='data'><div id='alerts'></div><div id='categoryList'><div class='categoryLabel'>Categories:</div><div class='buttonList'></div></div>" +
-			"<div id='results'><div class='resourceColumns Column1'>Click your location on the map to get started</div><div class='resourceColumns Column2'></div></div><div class='mapCredit'>" + mapCredit + "</div></div>");
+			"<div id='results'><div class='resourceColumns Column1'>Click your location on the map to get started</div><div class='resourceColumns Column2'></div></div><div style='clear:both;'></div><div class='mapCredit'>" + mapCredit + "</div></div>");
 		mapContainer = $("#map", this);
 		geoLocationContainer = $("#geoLocation", this);
 		alertContainer = $("#data #alerts", this);
