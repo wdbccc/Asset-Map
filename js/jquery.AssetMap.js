@@ -62,7 +62,9 @@ jQuery.support.cors = true;
 	descriptionShowChar = 100,
     descriptionEllipsesText = "...",
     descriptionMoreText = "more",
-    descriptionLessText = "less";
+    descriptionLessText = "less",
+	mapIntro = "Click the location of your business on the map to view a custom list of resources available for that location. Resources can be toggled by the following categories:",
+    mapCredit = "This map was built by a collaborative effort between the Contra Costa County Workforce Development Board, Department of Conservation and Development, Department of Information Technology, East Bay Economic Development Association and PMC.";
 
     /**
      * creating the user click marker -if already created reset the position
@@ -585,8 +587,9 @@ jQuery.support.cors = true;
 		//**************
 		
 		this.append("<div id='map'></div><div id='geoLocation'></div>" +
-			"<div class='intro'>Click the location of your business on the map to view a custom list of resources available for that location. Resources can be toggled by the following categories:</div>" +
-			"<div id='data'><div id='alerts'></div><div id='categoryList'><div class='categoryLabel'>Categories:</div><div class='buttonList'></div></div><div id='results'><div class='resourceColumns Column1'>Click your location on the map to get started</div><div class='resourceColumns Column2'></div></div></div>");
+			"<div class='intro'>" + mapIntro + "</div>" +
+			"<div id='data'><div id='alerts'></div><div id='categoryList'><div class='categoryLabel'>Categories:</div><div class='buttonList'></div></div>" +
+			"<div id='results'><div class='resourceColumns Column1'>Click your location on the map to get started</div><div class='resourceColumns Column2'></div></div><div class='mapCredit'>" + mapCredit + "</div></div>");
 		mapContainer = $("#map", this);
 		geoLocationContainer = $("#geoLocation", this);
 		alertContainer = $("#data #alerts", this);
