@@ -80,11 +80,12 @@ jQuery.support.cors = true;
           map: carto_map,
           animation: google.maps.Animation.DROP,
           title: "Your Location",
-          icon: markerImage
+          icon: markerImage,
+          zoom: 14
         });
       }
-      carto_map.panTo(latLng);
-      carto_map.setZoom(14);
+      //carto_map.panTo(latLng);
+      //carto_map.setZoom(14);
 
       $('.resourceColumns', resultContainer).empty();
       getListData();
@@ -603,7 +604,7 @@ jQuery.support.cors = true;
 	 markerImage = new google.maps.MarkerImage('https://raw.github.com/wdbccc/Asset-Map/feature/geocoder-update/img/marker.png',
 				                                  new google.maps.Size(32, 37),	// size
 				                                  new google.maps.Point(0,0),	// origin
-				                                  new google.maps.Point(0, 0)	// anchor
+				                                  new google.maps.Point(15, 15)	// anchor
                                               );
 	 
 	 //map background layer
@@ -655,10 +656,23 @@ jQuery.support.cors = true;
 	 
 	 // Init the map
 	 carto_map = new google.maps.Map(mapContainer[0], cartodbMapOptions);
-	 
+
+    map_dblclick = false;
+
+    // Google Maps API on double click will first fire the click event.
 	 google.maps.event.addListener(carto_map, 'click', function (event) {
-		new_marker(event.latLng);
+	   setTimeout(function() {
+        if (map_dblclick) {
+          map_dblclick = false;
+        } else {
+          new_marker(event.latLng)
+        };
+      }, 250);
 	 });
+
+	 google.maps.event.addListener(carto_map, 'dblclick', function (event) {
+      map_dblclick = true;
+	 })
 	 
 	 //testing and setup data
 	 if(settings['testMode']){
