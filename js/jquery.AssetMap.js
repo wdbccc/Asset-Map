@@ -71,7 +71,7 @@ jQuery.support.cors = true;
      * 
      * @param latLng - Google LatLng object
      */
-    var new_marker = function (latLng) {
+    var new_marker = function (latLng, geocode) {
       if (userMarker) {
         userMarker.setPosition(latLng);
       } else {
@@ -80,13 +80,13 @@ jQuery.support.cors = true;
           map: carto_map,
           animation: google.maps.Animation.DROP,
           title: "Your Location",
-          icon: markerImage,
-          zoom: 14
+          icon: markerImage
         });
       }
-      //carto_map.panTo(latLng);
-      //carto_map.setZoom(14);
-
+      if (geocode) {
+        carto_map.panTo(latLng);
+        carto_map.setZoom(14);
+      }
       $('.resourceColumns', resultContainer).empty();
       getListData();
       getProfileData();
@@ -116,7 +116,7 @@ jQuery.support.cors = true;
      */
     geoAddress_onPositionUpdate = function (latlng) {
       if (latlng) {
-		  new_marker(latlng);
+		  new_marker(latlng, true);
 		  $(".buttonContainer .searchError", mapContainer).hide();
 		  $(".geoToggleButton", mapContainer).click();
       } else {
