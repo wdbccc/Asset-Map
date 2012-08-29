@@ -623,10 +623,10 @@ jQuery.support.cors = true;
     // loc_type = 'special zone' from place table:
 	 cartodb_special_zone = {
 		getTileUrl: function (coord, zoom) {
-		  //var style = "%23place{ [loc_type='Special Zone']{polygon-fill:%23purple; polygon-opacity:0.7; line-opacity:0.7; line-color:%23000000; line-width:0.2; text-name:'[name]'; text-face-name: 'DejaVu Sans Book'; text-fill:%23000; text-size:11; text-line-spacing:1; text-wrap-width:20; text-allow-overlap:true;}}";
+		  var style = "%23place{ [loc_type='Special Zone']{polygon-fill:red; polygon-opacity:0.3; line-opacity:0.7; line-color:%23000000; line-width:0.2; text-name:'[name]'; text-face-name: 'DejaVu Sans Book'; text-fill:%23000; text-size:11; text-line-spacing:1; text-wrap-width:20; text-allow-overlap:true;}}";
 		  var sql = "SELECT name, the_geom_webmercator, loc_type FROM place Where loc_type = 'Special Zone'"
 		  return "https://wdbassetmap.cartodb.com/tiles/place/" + zoom + "/" + coord.x + "/" + coord.y + ".png" +
-			 "?sql=" + sql; // +"&style="+style;
+			 "?sql=" + sql + "&style=" + style;
 		},
 		tileSize: new google.maps.Size(256, 256)
 	 };
