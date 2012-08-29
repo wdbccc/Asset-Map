@@ -600,7 +600,7 @@ jQuery.support.cors = true;
 	 buttonListContainer = $("#data #categoryList .buttonList", this);
 	 
 	 
-	 markerImage = new google.maps.MarkerImage('http://mapicons.nicolasmollet.com/wp-content/uploads/mapicons/shape-default/color-3875d7/shapecolor-dark/shadow-1/border-white/symbolstyle-white/symbolshadowstyle-no/gradient-no/conference.png',
+	 markerImage = new google.maps.MarkerImage('https://raw.github.com/wdbccc/Asset-Map/feature/geocoder-update/img/marker.png',
 				                                  new google.maps.Size(32, 37),	// size
 				                                  new google.maps.Point(0,0),	// origin
 				                                  new google.maps.Point(0, 0)	// anchor
