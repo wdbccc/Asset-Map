@@ -117,7 +117,8 @@ jQuery.support.cors = true;
       if (latlng) {
 		  new_marker(latlng, true);
 		  $(".buttonContainer .searchError", mapContainer).hide();
-		  $(".geoToggleButton", mapContainer).click();
+		  //$(".geoToggleButton", mapContainer).click();
+        $("#address").select();
       } else {
         $(".buttonContainer .searchError", mapContainer).html('Geocode was not successful for the following reason: ' + status).show();
       }
@@ -580,6 +581,7 @@ jQuery.support.cors = true;
 			 $(this).parent().parent().parent().find(".layersToggleButton.active").click();
 			 $(this).addClass("active").parent().children(".geoControls").slideDown();
           geoTextbox.focus();
+          geoTextbox.select();
 		  }else{
 			 $(this).removeClass("active").parent().children(".geoControls").slideUp("300");
 		  }
