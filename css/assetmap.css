@@ -175,6 +175,7 @@ div#assetMap .mapCredit{
 	background-position: left top;
 	margin: 10px auto 15px auto;
 	min-width: 400px;
+   font-size:small;
 	width: 70%;
 	padding-left: 130px;
 	color: #A8A8A8;
