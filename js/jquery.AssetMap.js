@@ -79,8 +79,7 @@ jQuery.support.cors = true;
           position: latLng,
           map: carto_map,
           animation: google.maps.Animation.DROP,
-          title: "Your Location",
-          icon: markerImage
+          title: "Your Location"          
         });
       }
       if (geocode) {
@@ -599,13 +598,6 @@ jQuery.support.cors = true;
 	 alertContainer = $("#data #alerts", this);
 	 resultContainer = $("#data #results", this);
 	 buttonListContainer = $("#data #categoryList .buttonList", this);
-	 
-	 
-	 markerImage = new google.maps.MarkerImage('https://raw.github.com/wdbccc/Asset-Map/feature/geocoder-update/img/marker.png',
-				                                  new google.maps.Size(32, 37),	// size
-				                                  new google.maps.Point(0,0),	// origin
-				                                  new google.maps.Point(15, 15)	// anchor
-                                              );
 	 
 	 //map background layer
 	 cartodb_layerBase = {
