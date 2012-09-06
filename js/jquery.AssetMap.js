@@ -178,7 +178,8 @@ jQuery.support.cors = true;
       //option buttons
       var filterButtons = settings['filterButtons'];
       for (buttonItem in filterButtons) {
-        buttonListContainer.append('<input type="checkbox" ' + (filterButtons[buttonItem]["DefaultSelected"] ? 'checked="Checked"' : "") + ' id="check' + buttonItem + '" primaryicon="' + filterButtons[buttonItem]["Icon"] + '" filtertype="' + filterButtons[buttonItem]["Type"] + '" filtername="' + filterButtons[buttonItem]["Title"] + '" /><label for="check' + buttonItem + '">' + filterButtons[buttonItem]["Title"] + '</label>');
+		  if(filterButtons[buttonItem]["Title"])
+        	buttonListContainer.append('<input type="checkbox" ' + (filterButtons[buttonItem]["DefaultSelected"] ? 'checked="Checked"' : "") + ' id="check' + buttonItem + '" primaryicon="' + filterButtons[buttonItem]["Icon"] + '" filtertype="' + filterButtons[buttonItem]["Type"] + '" filtername="' + filterButtons[buttonItem]["Title"] + '" /><label for="check' + buttonItem + '">' + filterButtons[buttonItem]["Title"] + '</label>');
       }
 
       $(function () {
@@ -467,7 +468,7 @@ jQuery.support.cors = true;
 	 var HomeControl = function(controlDiv, map) {
 		controlDiv.className = 'buttonContainer';
 		
-		var geoLocationButton = $('<div class="mapButton"><strong>Home<strong></div>').appendTo(controlDiv);
+		var geoLocationButton = $('<div class="mapButton"><strong>Home</strong></div>').appendTo(controlDiv);
 		var homeLocation = new google.maps.LatLng(settings['mapCenterLat'], settings['mapCenterLng']);
 	   
 		// Setup the click event listeners
@@ -486,7 +487,7 @@ jQuery.support.cors = true;
     var LayersControl = function(controlDiv, map) {
 		controlDiv.className = 'buttonContainer';
 
-		var layersButton = $('<div class="mapButton layersToggleButton"><strong>Layers<strong></div>').appendTo(controlDiv);
+		var layersButton = $('<div class="mapButton layersToggleButton"><strong>Layers</strong></div>').appendTo(controlDiv);
 		var layersControlUI = $('<div class="layersControls subMenu"></div>').attr({ style: 'display:none' }).appendTo(controlDiv);
       
 		var baseLayersCheckbox = $('<input />').attr({ type: 'checkbox', id: 'baseCheckbox' }).appendTo(layersControlUI);
@@ -553,7 +554,7 @@ jQuery.support.cors = true;
 	 var GeocodeControl = function(controlDiv, map) {
 		controlDiv.className = 'buttonContainer';
 
-		var geoLocationButton = $('<div class="mapButton geoToggleButton"><strong>Address Search<strong></div>').appendTo(controlDiv);
+		var geoLocationButton = $('<div class="mapButton geoToggleButton"><strong>Address Search</strong></div>').appendTo(controlDiv);
 		var geoControlUI = $('<div class="geoControls subMenu"></div>').attr({ style: 'display:none' }).appendTo(controlDiv);
       
       geoControlUI.append("<div class='searchError' style='display:none'></div>");
