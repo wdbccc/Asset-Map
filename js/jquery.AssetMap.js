@@ -192,7 +192,7 @@ jQuery.support.cors = true;
       $(function () {
         $(".bubbleInfo", buttonListContainer).each(function (index) {
 			
-	      var distance = 20;
+	      var distance = -30;
 	      var time = 250;
 	      var hideDelay = 200;
 	      var hideDelayTimer = null;
@@ -226,14 +226,14 @@ jQuery.support.cors = true;
 	
 			// reset position of popup box
 			popup.css({
-			  top: -100,
-			  left: -33,
+			  bottom: -12,
+			  left: -10,
 			  display: 'block' // brings the popup back in to view
 			})
 	
 			// (we're using chaining on the popup) now animate it's opacity and position
 			.animate({
-			  top: '-=' + distance + 'px',
+			  bottom: '-=' + distance + 'px',
 			  opacity: 1
 			}, time, 'swing', function() {
 			  // once the animation is complete, set the tracker variables
@@ -249,7 +249,7 @@ jQuery.support.cors = true;
 		  hideDelayTimer = setTimeout(function () {
 			hideDelayTimer = null;
 			popup.animate({
-			  top: '-=' + distance + 'px',
+			  bottom: '-=' + distance + 'px',
 			  opacity: 0
 			}, time, 'swing', function () {
 			  // once the animate is complete, set the tracker variables

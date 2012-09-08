@@ -196,17 +196,17 @@ div#assetMap .mapCredit{
 .popup {
 	position: absolute;
 	display: none;
-	background-image:url('images/popupTop.png');
+	background-image:url('images/box-top.png');
 	background-repeat:no-repeat;
-	padding-top:37px;
-	width:212px;
+	padding-top:25px;
+	width:250px;
 	z-index:1000;
 }
 .popup .popupMid {
-	background-image:url('images/popupMid.png');
-	padding:0px 30px 10px 30px;
+	background-image:url('images/box-middle.png');
+	padding:0px 20px 0px 20px;
 }
 .popup .popupBtm {
-	height:32px;
-	background-image:url('images/popupBtm.png');
+	height:27px;
+	background-image:url('images/box-bottom.png');
 }
