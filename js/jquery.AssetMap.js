@@ -22,26 +22,31 @@ jQuery.support.cors = true;
       'filterButtons': [{
         Title: "Advice",
         Type: "advice",
+        Description: "Free or low-cost business consulting",
         Icon: "ui-icon-advice",
         DefaultSelected: false
       }, {
         Title: "Financing",
         Type: "financial",
+        Description: "Discover financial resources",
         Icon: "ui-icon-financing",
         DefaultSelected: false
       }, {
         Title: "Networking",
         Type: "networking",
+        Description: "Opportunities to network with other businesses",
         Icon: "ui-icon-networking",
         DefaultSelected: false
       }, {
         Title: "Green Business",
         Type: "green_business",
+        Description: "Incentives and resources to help green your business",
         Icon: "ui-icon-green",
         DefaultSelected: false
       }, {
         Title: "Employer Incentives",
         Type: "employer_incentives",
+        Description: "Employer incentives to hire, retain and train employees",
         Icon: "ui-icon-workforce",
         DefaultSelected: false
       }]
@@ -179,18 +184,82 @@ jQuery.support.cors = true;
       var filterButtons = settings['filterButtons'];
       for (buttonItem in filterButtons) {
 		  if(filterButtons[buttonItem]["Title"])
-        	buttonListContainer.append('<input type="checkbox" ' + (filterButtons[buttonItem]["DefaultSelected"] ? 'checked="Checked"' : "") + ' id="check' + buttonItem + '" primaryicon="' + filterButtons[buttonItem]["Icon"] + '" filtertype="' + filterButtons[buttonItem]["Type"] + '" filtername="' + filterButtons[buttonItem]["Title"] + '" /><label for="check' + buttonItem + '">' + filterButtons[buttonItem]["Title"] + '</label>');
+        	buttonListContainer.append('<span class="bubbleInfo"><input type="checkbox" ' + (filterButtons[buttonItem]["DefaultSelected"] ? 'checked="Checked"' : "") + ' id="check' + buttonItem + '" primaryicon="' + filterButtons[buttonItem]["Icon"] + '" filtertype="' + filterButtons[buttonItem]["Type"] + '" filtername="' + filterButtons[buttonItem]["Title"] + '" />' +
+			'<label for="check' + buttonItem + '">' + filterButtons[buttonItem]["Title"] + '</label>' + 
+			'<div class="popup"><div class="popupMid">' + filterButtons[buttonItem]["Description"] + '</div><div class="popupBtm"></div></div></span>');
       }
-
+	  
       $(function () {
-        $("input", buttonListContainer).each(function (index) {
-          $(this).button({
+        $(".bubbleInfo", buttonListContainer).each(function (index) {
+			
+	      var distance = -30;
+	      var time = 250;
+	      var hideDelay = 200;
+	      var hideDelayTimer = null;
+			
+	      // tracker
+	      var beingShown = false;
+	      var shown = false;
+			
+	      var popup = $('.popup', this).css('opacity', 0);
+		
+          var button = $("input",this).button({
             icons: {
-              primary: $(this).attr("primaryicon")
+              primary: $("input", this).attr("primaryicon")
             }
           }).click(function () {
             loadResultsDataList();
           });
+		  
+	      var trigger = $('label.ui-button', this);
+		  
+		  // set the mouseover and mouseout on both element
+		$([trigger.get(0), popup.get(0)]).mouseover(function () {
+		  // stops the hide event if we move from the trigger to the popup element
+		  if (hideDelayTimer) clearTimeout(hideDelayTimer);
+	
+		  // don't trigger the animation again if we're being shown, or already visible
+		  if (beingShown || shown) {
+			return;
+		  } else {
+			beingShown = true;
+	
+			// reset position of popup box
+			popup.css({
+			  bottom: -12,
+			  left: -10,
+			  display: 'block' // brings the popup back in to view
+			})
+	
+			// (we're using chaining on the popup) now animate it's opacity and position
+			.animate({
+			  bottom: '-=' + distance + 'px',
+			  opacity: 1
+			}, time, 'swing', function() {
+			  // once the animation is complete, set the tracker variables
+			  beingShown = false;
+			  shown = true;
+			});
+		  }
+		}).mouseout(function () {
+		  // reset the timer if we get fired again - avoids double animations
+		  if (hideDelayTimer) clearTimeout(hideDelayTimer);
+		  
+		  // store the timer so that it can be cleared in the mouseover if required
+		  hideDelayTimer = setTimeout(function () {
+			hideDelayTimer = null;
+			popup.animate({
+			  bottom: '-=' + distance + 'px',
+			  opacity: 0
+			}, time, 'swing', function () {
+			  // once the animate is complete, set the tracker variables
+			  shown = false;
+			  // hide the popup entirely after the effect (opacity alone doesn't do the job)
+			  popup.css('display', 'none');
+			});
+		  }, hideDelay);
+		});
+		  
         });
       });
     }
