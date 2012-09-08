@@ -109,7 +109,8 @@ div#assetMap .intro{
 	color: gray;
 } 
 
- /* categories */
+/* categories */
+
 div#assetMap #categoryList{  
     position:relative;
 } 
@@ -136,6 +137,7 @@ div#assetMap div#alerts {
 }
 
 /* Results */
+
 div#assetMap #results{  
 	margin:10px 0px;
 	color: #666666;
@@ -179,4 +181,32 @@ div#assetMap .mapCredit{
 	width: 70%;
 	padding-left: 130px;
 	color: #A8A8A8;
+}
+
+/* bubbleInfo */
+	
+.bubbleInfo {
+	position: relative;
+}
+
+.trigger {
+	border:1px solid pink;
+}
+
+.popup {
+	position: absolute;
+	display: none;
+	background-image:url('images/popupTop.png');
+	background-repeat:no-repeat;
+	padding-top:37px;
+	width:212px;
+	z-index:1000;
+}
+.popup .popupMid {
+	background-image:url('images/popupMid.png');
+	padding:0px 30px 10px 30px;
+}
+.popup .popupBtm {
+	height:32px;
+	background-image:url('images/popupBtm.png');
 }
