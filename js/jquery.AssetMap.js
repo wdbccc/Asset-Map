@@ -20,34 +20,34 @@ jQuery.support.cors = true;
       'mapZoom': 10,
       'testMode': false,
       'filterButtons': [{
-        Title: "Advice",
-        Type: "advice",
-        Description: "Free or low-cost business consulting",
-        Icon: "ui-icon-advice",
-        DefaultSelected: false
-      }, {
-        Title: "Financing",
+        Title: "Find Financing",
         Type: "financial",
-        Description: "Discover financial resources",
+        Description: "Find financial resources",
         Icon: "ui-icon-financing",
         DefaultSelected: false
       }, {
-        Title: "Networking",
+        Title: "Connect",
         Type: "networking",
-        Description: "Opportunities to network with other businesses",
+        Description: "Connect with other businesses",
         Icon: "ui-icon-networking",
         DefaultSelected: false
       }, {
-        Title: "Green Business",
-        Type: "green_business",
-        Description: "Incentives and resources to help green your business",
-        Icon: "ui-icon-green",
-        DefaultSelected: false
+        Title: "Get Info",
+        Type: "advice",
+        Description: "General business information.",
+        Icon: "ui-icon-advice",
+        DefaultSelected: false        
       }, {
-        Title: "Employer Incentives",
+        Title: "Identify Incentives",
         Type: "employer_incentives",
-        Description: "Employer incentives to hire, retain and train employees",
+        Description: "Discover business incentives",
         Icon: "ui-icon-workforce",
+        DefaultSelected: false        
+      }, {
+        Title: "Launch a Business",
+        Type: "green_business",
+        Description: "Resources to launch a new business",
+        Icon: "ui-icon-green",
         DefaultSelected: false
       }]
     }, options);
