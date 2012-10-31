@@ -20,11 +20,11 @@ jQuery.support.cors = true;
       'mapZoom': 10,
       'testMode': false,
       'filterButtons': [{
-        Title: "Find Financing",
-        Type: "financial",
-        Description: "Find financial resources",
-        Icon: "ui-icon-financing",
-        DefaultSelected: false
+        Title: "Launch a Business",
+        Type: "green_business",
+        Description: "Resources to launch a new business",
+        Icon: "ui-icon-green",
+        DefaultSelected: false        
       }, {
         Title: "Connect",
         Type: "networking",
@@ -44,10 +44,10 @@ jQuery.support.cors = true;
         Icon: "ui-icon-workforce",
         DefaultSelected: false        
       }, {
-        Title: "Launch a Business",
-        Type: "green_business",
-        Description: "Resources to launch a new business",
-        Icon: "ui-icon-green",
+        Title: "Find Financing",
+        Type: "financial",
+        Description: "Find financial resources",
+        Icon: "ui-icon-financing",
         DefaultSelected: false
       }]
     }, options);
